@@ -5,6 +5,9 @@ const {
     registerAdmin,
     verifyAdmin,
     Adminlogin,
+    Adminlogout,
+    Createinvestor,
+    Investorlogin
 
 } = require('../controller/userController.js');
 
@@ -13,5 +16,8 @@ const {
 router.post('/register', registerAdmin);
 router.post('/verify', verifyAdmin);
 router.post('/login', Adminlogin);
+router.post('/logout', permit("admin"), Adminlogout);
+router.post('/createinvestor', permit("admin"), Createinvestor);
+router.post('/investorlogin', Investorlogin);
 
 module.exports = router;

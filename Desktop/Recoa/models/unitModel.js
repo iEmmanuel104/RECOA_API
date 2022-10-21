@@ -22,11 +22,25 @@ module.exports = (sequelize, DataTypes) => {
         count: {
             type: DataTypes.INTEGER,
             allowNull: false
-        }
+        },
+        type: {
+            type: DataTypes.STRING,
+        },
+        imagename: {
+            type: DataTypes.STRING,
+        },
+        data: {
+            type: DataTypes.BLOB('long'),
+        },
     }, {
         tableName: 'unit',
         timestamps: false,
-        underscored: true
+        underscored: true,
+        hooks: {
+            beforeCreate(unit) {
+                unit.name = unit.name.toLowerCase();
+            }   
+        }
     });
 
     Unit.associate = (models) => {
@@ -36,10 +50,15 @@ module.exports = (sequelize, DataTypes) => {
             // onUpdate : 'CASCADE'
         });
         Unit.belongsTo(models.User, {
-            foreignKey: 'userunitId',
+            foreignKey: 'userId',
             // onDelete: 'CASCADE',
             // onUpdate : 'CASCADE'
         });
+        Unit.hasMany(models.Image, {
+            onDelete: 'CASCADE',
+            // onUpdate : 'CASCADE'
+        });
+
     };
 
     return Unit;

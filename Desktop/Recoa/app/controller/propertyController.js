@@ -1,6 +1,7 @@
 const db = require("../../models");
 const Property = db.Property;
 const Unit = db.Unit;
+const User = db.User;
 const Op = require("sequelize").Op;
 
 const getAllProperty = async (req, res) => {
@@ -22,10 +23,8 @@ const getPropertyById = async (req, res) => {
         if (property) {
             let sum = 0;
             property.toJSON().Units.forEach((unit) => {
-                console.log(unit)
                 sum += unit.count
             });
-            console.log(sum)
             // property.dataValues.totalUnits = sum;
             return res.status(200).json({
                 msg: "Property found",
@@ -165,6 +164,44 @@ const searchProperty = async (req, res) => {
     }
 };
 
+const joinPropertyWaitlist = async (req, res) => {
+    try {
+        const { propertyId } = req.params;
+        const { userId } = req.body;
+        const property = await Property.findOne({
+            where: { id: id },
+        });
+        if (!property.status === "waitlist") {
+            throw new Error("Property is not in waitlist, cannot join");
+        }
+        const user = await User.findOne({
+            where: { id: userId },
+        });
+        if (!user) {
+            throw new Error("User does not exist");
+        }
+        const userAlreadyJoined = await User.findOne({
+            where: { id: userId },
+            include: [
+                {
+                    model: Property,
+                    where: { id: propertyId },
+                },
+            ],
+        });
+        if (userAlreadyJoined) {
+            throw new Error("User already joined waitlist");
+        }
+        await user.addProperty(property);
+        res.status(200).json({ message: "User joined waitlist" });
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+
+
+
+
 
 module.exports = {
     getAllProperty,
@@ -173,5 +210,6 @@ module.exports = {
     updateProperty,
     deleteProperty,
     searchProperty,
+    joinPropertyWaitlist,
 };
 

@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     username: {
       type: DataTypes.STRING,
         allowNull: false,
+        
     },
     email: {
       type: DataTypes.STRING,
@@ -33,10 +34,18 @@ module.exports = (sequelize, DataTypes) => {
         hooks: {
             beforeCreate(user) {
                 user.password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(10));
+                user.username = user.username.toLowerCase();
             }
         }
     });
 
+    User.prototype.toJSON = function() {
+      const values = Object.assign({}, this.get());
+
+      delete values.password;
+
+      return values;
+    };
     User.associate = (models) => {
         User.hasMany(models.Unit, {
             onDelete: 'CASCADE',

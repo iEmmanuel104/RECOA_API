@@ -24,7 +24,12 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'property',
         timestamps: false,
-        underscored: true
+        underscored: true,
+        hooks: {
+            beforeCreate(property) {
+                property.name = property.name.toLowerCase();
+            }
+        }
     });
 
     Property.associate = (models) => {
